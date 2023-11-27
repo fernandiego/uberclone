@@ -11,6 +11,13 @@
         text="Food"
         imageWidth="74"
         image="food"
+        :promo="true"
+      />
+      </div>
+      <div class="grid grid-cols-4 gap-3 my-3">
+      <ServiceSelectSmall
+        text="Ride"
+        image="ride"
       />
       </div>
     </div>
@@ -19,4 +26,5 @@
 
 <script setup>
   import ServiceSelectLarge from "@/components/ServiceSelectLarge.vue";
+  import ServiceSelectSmall from "@/components/ServiceSelectSmall.vue";
 </script>
