@@ -26,3 +26,5 @@ pnpm-debug.log*
 uber/server/.env
 
 uber/.env
+
+.env
