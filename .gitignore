@@ -23,8 +23,3 @@ pnpm-debug.log*
 *.sw?
 ../.idea
 
-uber/server/.env
-
-uber/.env
-
-.env
