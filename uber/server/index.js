@@ -6,7 +6,7 @@ const bodyParser = require('body-parser')
 require('dotenv').config()
 const port = 4001
 
-axios.default.baseURL = process.env.GOOGLE_MAPS_API_URL
+axios.defaults.baseURL = process.env.GOOGLE_MAPS_API_KEY
 
 app.use(bodyParser.json())
 app.use(cors())
@@ -18,11 +18,11 @@ try {
         req.params.address === '' ||
         req.params.address === 'null'
     ) return ''
-    let data = axios.get(
+    let data = await axios.get(
         'place/autocomplete/json' +
         '?input=' + req.params.address +
         '&types=address' +
-        '&key=' + process.env.GOOGLE_MAPS_API_KEY
+        '&key=' + process.env.VUE_APP_GOOGLE_MAPS_API_KEY
     )
 
     res.status(200).json(data.data.predictions)
