@@ -15,46 +15,72 @@
         <div class="w-full h-5"></div>
         <div class="mb-2 mt-5">
           <AutoCompleteInput
-            theId="firstInput"
-            v-model:input="pickup"
-            placeholder="Enter pick-up location"
-            @isActive="isPickupActive = true"
+              theId="firstInput"
+              v-model:input="pickup"
+              placeholder="Enter pick-up location"
+              @isActive="isPickupActive = true"
 
           />
         </div>
         <div class="mb-3">
           <AutoCompleteInput
-            theId="secondInput"
-            v-model:input="destination"
-            placeholder="Where to?"
-            @isActive="isPickupActive = false"
+              theId="secondInput"
+              v-model:input="destination"
+              placeholder="Where to?"
+              @isActive="isPickupActive = false"
 
           />
         </div>
       </div>
     </div>
-    <div class="flex items-center custom-border-bottom">
-      <div class="bg-gray400 mx-5 my-3.5 p-1.5 rounded-full">
-        <MapMarkerIcon :size="30" fillColor="#f5f5f5"/>
-      </div>
-      <div>
-        <div class="text-lg text-gray-600">London, UK</div>
-        <div class="text-lg text-gray-400">UK</div>
+    <div v-for="address in addressData" :key="address">
+      <div class="flex items-center custom-border-bottom">
+        <div class="bg-gray400 mx-5 my-3.5 p-1.5 rounded-full">
+          <MapMarkerIcon :size="30" fillColor="#f5f5f5"/>
+        </div>
+        <div>
+          <div class="text-lg text-gray-600">{{ address.description }}</div>
+          <div class="text-lg text-gray-400">{{ address.terms[2].value }}</div>
+        </div>
+
       </div>
     </div>
+
   </div>
 </template>
 
 <script setup>
 import ArrowIcon from 'vue-material-design-icons/ArrowLeft.vue'
 import MapMarkerIcon from 'vue-material-design-icons/MapMarker.vue'
-import {ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import AutoCompleteInput from "@/components/AutoCompleteInput.vue";
+import {debounce} from "lodash";
+import axios from "axios";
 
 let isPickupActive = ref(true)
 
 let pickup = ref('')
 let destination = ref('')
+let addressData = ref('')
+
+
+onMounted(() => {
+  document.getElementById('firstInput').focus()
+})
+
+const findAddress = debounce(async (address) => {
+  try {
+    let res = await axios.get('address/' + address)
+    addressData.value = res.data
+  } catch (err) {
+    console.log(err)
+  }
+}, 300)
+
+watch(pickup, async (pickup) => await findAddress(pickup))
+watch(destination, async (destination) => await findAddress(destination))
+
+
 </script>
 
 <style lang="scss" scoped>
@@ -101,6 +127,7 @@ let destination = ref('')
     height: 45px;
     background-color: rgb(191, 191, 191);
   }
+
   .custom-border-bottom {
     border-bottom: 1px solid rgb(230, 230, 230);
   }
