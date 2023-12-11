@@ -30,6 +30,23 @@ app.get('/api/address/:address', async (req, res) => {
         res.status(500).json('Internal Server Error');
     }
 });
+app.get('/api/distance/:pickup/:destination', async (req, res) => {
+    try {
+
+        let data = await axios.get(
+            'distancematrix/json' +
+            '?origins=' + req.params.pickup +
+            '&destinations=' + req.params.destination +
+            '&units=imperial' +
+            '&key=' + process.env.VUE_APP_GOOGLE_MAPS_API_KEY
+        );
+
+        res.status(200).json(data.data);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json('Internal Server Error');
+    }
+});
 
 
 app.listen(port, () => {
