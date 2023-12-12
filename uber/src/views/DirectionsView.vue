@@ -18,6 +18,7 @@
               theId="firstInput"
               v-model:input="pickup"
               placeholder="Enter pick-up location"
+              @clearInput="clearInputFunc('firstInput')"
               @isActive="isPickupActive = true"
 
           />
@@ -27,6 +28,7 @@
               theId="secondInput"
               v-model:input="destination"
               placeholder="Where to?"
+              @clearInput="clearInputFunc('secondInput')"
               @isActive="isPickupActive = false"
 
           />
@@ -34,7 +36,8 @@
       </div>
     </div>
     <div v-for="address in addressData" :key="address">
-      <div class="flex items-center custom-border-bottom">
+      <div @click="storeAddress(address.description)"
+           class="flex items-center custom-border-bottom">
         <div class="bg-gray400 mx-5 my-3.5 p-1.5 rounded-full">
           <MapMarkerIcon :size="30" fillColor="#f5f5f5"/>
         </div>
@@ -52,26 +55,58 @@
 <script setup>
 import ArrowIcon from 'vue-material-design-icons/ArrowLeft.vue'
 import MapMarkerIcon from 'vue-material-design-icons/MapMarker.vue'
-import {onMounted, ref, watch} from "vue";
+import { onMounted, ref, watch } from "vue";
 import AutoCompleteInput from "@/components/AutoCompleteInput.vue";
-import {debounce} from "lodash";
+import { debounce } from "lodash";
+import { useDirectionStore } from "@/store/direction-store";
 import axios from "axios";
+import { useRouter } from "vue-router";
+
+const router = useRouter()
+const direction = useDirectionStore()
 
 let isPickupActive = ref(true)
-
 let pickup = ref('')
 let destination = ref('')
-let addressData = ref('')
-
+let addressData = ref([])
 
 onMounted(() => {
   document.getElementById('firstInput').focus()
 })
 
+const storeAddress = (address) => {
+  if (isPickupActive.value === true) {
+    pickup.value = address
+  } else {
+    destination.value = address
+  }
+
+  if (pickup.value && destination.value) {
+    direction.pickup = pickup.value
+    direction.destination = destination.value
+    router.push('/map')
+  }
+}
+
+const clearInputFunc = (inputId) => {
+  if (inputId === 'firstInput') {
+    pickup.value = '';
+  }
+
+  if (inputId === 'secondInput') {
+    destination.value = '';
+  }
+}
+
 const findAddress = debounce(async (address) => {
   try {
+    if (address === '' || address === null) {
+      addressData.value = []
+      return ''
+    }
+
     let res = await axios.get('address/' + address)
-    addressData.value = res.data
+    addressData.value = res.data || []
   } catch (err) {
     console.log(err)
   }
@@ -79,8 +114,6 @@ const findAddress = debounce(async (address) => {
 
 watch(pickup, async (pickup) => await findAddress(pickup))
 watch(destination, async (destination) => await findAddress(destination))
-
-
 </script>
 
 <style lang="scss" scoped>

@@ -75,7 +75,22 @@
 
 <script setup>
 
-import {onMounted} from "vue";
+import {onMounted, ref} from "vue";
+import {useDirectionStore} from "@/store/direction-store";
+
+const direction = useDirectionStore()
+
+const latlng = ref({
+  start: {
+    lat: null,
+    lng: null,
+  },
+  end: {
+    lat: null,
+    lng: null,
+  },
+
+})
 
 onMounted(() => {
   setTimeout(() => {
@@ -84,18 +99,51 @@ onMounted(() => {
 })
 
 const initMap = () => {
+
+  const directionsService = new window.google.maps.DirectionsService()
+  const directionsRenderer = new window.google.maps.DirectionsRenderer()
+
+  directionsRenderer.setOptions({
+    polylineOptions: {
+      strokeColor: '#212121',
+      strokeWeight: 6
+    }
+  })
+
   const map = new window.google.maps.Map(document.getElementById("map"), {
-    center: {lat: -34.397, lng: 150.644},
     zoom: 8,
+    minZoom: 3,
+    maxZoom: 17,
     fullscreenControl: false,
     zoomControl: false,
     streetViewControl: false,
     mapTypeControl: false,
   });
-  console.log(map)
-
+  if (direction.pickup && direction.destination) {
+    getDirections(map, directionsRenderer, directionsService)
+  }
 }
 
+const getDirections = (map, directionsRenderer, directionsService) => {
+  directionsRenderer.setMap(map)
+
+  const request = {
+    origin: direction.pickup,
+    destination: direction.destination,
+    optimizeWaypoints: true,
+    travelMode: 'DRIVING'
+  }
+  directionsService.route(request, (result, status) => {
+    if (status === 'OK') {
+      latlng.value.start.lat = result.routes[0].legs[0].start_location.lat()
+      latlng.value.start.lng = result.routes[0].legs[0].start_location.lng()
+      latlng.value.end.lat = result.routes[0].legs[0].start_location.lat()
+      latlng.value.end.lat = result.routes[0].legs[0].start_location.lng()
+
+      directionsRenderer.setDirections(result)
+    }
+  })
+}
 
 </script>
 
