@@ -1,16 +1,17 @@
 <template>
   <div id="MapView">
     <div
-       id="BackBtn"
-       class="absolute z-50 rounded-full bg-whit"
+        id="BackBtn"
+        class="absolute z-50 rounded-full bg-white p-1 top-8 left-4"
+        @click="goBack()"
     >
-
+      <ArrowLeftIcon :size="40"/>
     </div>
     <div id="map"></div>
     <div id="VehicleSelection" class="w-full">
       <div class="w-full h-2 border-t"></div>
       <div class="w-full text-center border-t-2 p-1.5 text-gray-700 text-lg font-semibold">
-        Distance - {{distance.text}}
+        Distance - {{ distance.text }}
       </div>
       <div class="ScrollSection">
         <div class="bg-custom-gray">
@@ -19,9 +20,9 @@
             <div class="w-full ml-3">
               <div class="flex items-center justify-between">
                 <div class="text-2xl mb-1">UberX</div>
-                <div class="text-xl">$ {{calculatePrice(1, distance.value)}}</div>
+                <div class="text-xl">$ {{ calculatePrice(1, distance.value) }}</div>
               </div>
-              <div class="text-gray-500">{{duration.text}}</div>
+              <div class="text-gray-500">{{ duration.text }}</div>
             </div>
           </div>
         </div>
@@ -31,9 +32,9 @@
             <div class="w-full ml-3">
               <div class="flex items-center justify-between">
                 <div class="text-2xl mb-1">Uber Comfort</div>
-                <div class="text-xl">$ {{calculatePrice(1.25, distance.value)}}</div>
+                <div class="text-xl">$ {{ calculatePrice(1.25, distance.value) }}</div>
               </div>
-              <div class="text-gray-500">{{duration.text}}</div>
+              <div class="text-gray-500">{{ duration.text }}</div>
             </div>
           </div>
         </div>
@@ -43,9 +44,9 @@
             <div class="w-full ml-3">
               <div class="flex items-center justify-between">
                 <div class="text-2xl mb-1">UberXL</div>
-                <div class="text-xl">$ {{calculatePrice(1.5, distance.value)}}</div>
+                <div class="text-xl">$ {{ calculatePrice(1.5, distance.value) }}</div>
               </div>
-              <div class="text-gray-500">{{duration.text}}</div>
+              <div class="text-gray-500">{{ duration.text }}</div>
             </div>
           </div>
         </div>
@@ -82,10 +83,14 @@
 <script setup>
 
 import {onMounted, ref} from "vue";
+import { useRouter } from "vue-router";
 import {useDirectionStore} from "@/store/direction-store";
 import axios from "axios";
+import ArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue'
+
 
 const direction = useDirectionStore()
+const router = useRouter()
 
 const distance = ref({text: '', value: null})
 const duration = ref({text: '', value: null})
@@ -107,6 +112,12 @@ onMounted(() => {
     initMap()
   }, 500)
 })
+
+const goBack = () => {
+  router.push('/directions')
+  direction.pickup = ''
+  direction.destination = ''
+}
 
 const initMap = () => {
 
@@ -167,7 +178,7 @@ const getDistance = async () => {
 }
 
 const calculatePrice = (multiplier, price) => {
-  let res = (price/900) * multiplier
+  let res = (price / 900) * multiplier
   return res.toFixed(2)
 }
 
