@@ -1,10 +1,16 @@
 <template>
   <div id="MapView">
+    <div
+       id="BackBtn"
+       class="absolute z-50 rounded-full bg-whit"
+    >
+
+    </div>
     <div id="map"></div>
     <div id="VehicleSelection" class="w-full">
       <div class="w-full h-2 border-t"></div>
       <div class="w-full text-center border-t-2 p-1.5 text-gray-700 text-lg font-semibold">
-        Distance - 50
+        Distance - {{distance.text}}
       </div>
       <div class="ScrollSection">
         <div class="bg-custom-gray">
@@ -13,9 +19,9 @@
             <div class="w-full ml-3">
               <div class="flex items-center justify-between">
                 <div class="text-2xl mb-1">UberX</div>
-                <div class="text-xl">$55.50</div>
+                <div class="text-xl">$ {{calculatePrice(1, distance.value)}}</div>
               </div>
-              <div class="text-gray-500">7 hours</div>
+              <div class="text-gray-500">{{duration.text}}</div>
             </div>
           </div>
         </div>
@@ -24,10 +30,10 @@
             <img width="75" src="img/uber/comfort.png" alt="">
             <div class="w-full ml-3">
               <div class="flex items-center justify-between">
-                <div class="text-2xl mb-1">Comfort</div>
-                <div class="text-xl">76.50</div>
+                <div class="text-2xl mb-1">Uber Comfort</div>
+                <div class="text-xl">$ {{calculatePrice(1.25, distance.value)}}</div>
               </div>
-              <div class="text-gray-500">7 hours</div>
+              <div class="text-gray-500">{{duration.text}}</div>
             </div>
           </div>
         </div>
@@ -37,9 +43,9 @@
             <div class="w-full ml-3">
               <div class="flex items-center justify-between">
                 <div class="text-2xl mb-1">UberXL</div>
-                <div class="text-xl">$65.50</div>
+                <div class="text-xl">$ {{calculatePrice(1.5, distance.value)}}</div>
               </div>
-              <div class="text-gray-500">7 hours</div>
+              <div class="text-gray-500">{{duration.text}}</div>
             </div>
           </div>
         </div>
@@ -77,8 +83,12 @@
 
 import {onMounted, ref} from "vue";
 import {useDirectionStore} from "@/store/direction-store";
+import axios from "axios";
 
 const direction = useDirectionStore()
+
+const distance = ref({text: '', value: null})
+const duration = ref({text: '', value: null})
 
 const latlng = ref({
   start: {
@@ -121,8 +131,11 @@ const initMap = () => {
   });
   if (direction.pickup && direction.destination) {
     getDirections(map, directionsRenderer, directionsService)
+    getDistance()
+
   }
 }
+
 
 const getDirections = (map, directionsRenderer, directionsService) => {
   directionsRenderer.setMap(map)
@@ -143,6 +156,19 @@ const getDirections = (map, directionsRenderer, directionsService) => {
       directionsRenderer.setDirections(result)
     }
   })
+}
+
+const getDistance = async () => {
+  let res = await axios.get('distance/' + direction.pickup + '/' + direction.destination)
+  distance.value.text = res.data.rows[0].elements[0].distance.text
+  distance.value.value = res.data.rows[0].elements[0].distance.value
+  duration.value.text = res.data.rows[0].elements[0].duration.text
+  duration.value.value = res.data.rows[0].elements[0].duration.value
+}
+
+const calculatePrice = (multiplier, price) => {
+  let res = (price/900) * multiplier
+  return res.toFixed(2)
 }
 
 </script>
