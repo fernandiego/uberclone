@@ -3,7 +3,7 @@
     <div class="grid grid-cols-12 mt-4 shadow-md">
       <div class="col-span-2 mx-auto">
         <div>
-          <ArrowIcon :size="35"/>
+          <ArrowIcon :size="35" @click="router.push('/')"/>
         </div>
         <div class="h-16 mt-4 w-full">
           <div :class="[isPickupActive ? 'circle-black' : 'circle-gray']"></div>

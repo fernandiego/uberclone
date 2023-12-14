@@ -87,6 +87,7 @@ import { useRouter } from "vue-router";
 import {useDirectionStore} from "@/store/direction-store";
 import axios from "axios";
 import ArrowLeftIcon from 'vue-material-design-icons/ArrowLeft.vue'
+import mapStyles from "@/mapStyles";
 
 
 const direction = useDirectionStore()
@@ -108,6 +109,9 @@ const latlng = ref({
 })
 
 onMounted(() => {
+  if (!direction.pickup || !direction.destination) {
+    router.push('/')
+  }
   setTimeout(() => {
     initMap()
   }, 500)
@@ -139,6 +143,7 @@ const initMap = () => {
     zoomControl: false,
     streetViewControl: false,
     mapTypeControl: false,
+    styles: mapStyles()
   });
   if (direction.pickup && direction.destination) {
     getDirections(map, directionsRenderer, directionsService)
